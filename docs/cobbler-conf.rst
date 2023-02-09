@@ -662,7 +662,6 @@ Choices:
 - authn_ldap       -- authenticate against LDAP
 - authn_spacewalk  -- ask Spacewalk/Satellite (experimental)
 - authn_pam        -- use PAM facilities
-- authn_testing    -- username/password is always testing/testing (debug)
 - (user supplied)  -- you may write your own module
 
 WARNING: this is a security setting, do not choose an option blindly.
