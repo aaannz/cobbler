@@ -280,6 +280,8 @@ class TFTPGen(object):
                         link_path = os.path.join(self.bootloc, "grub", "system_link", system.name)
                         if os.path.exists(link_path):
                             utils.rmfile(link_path)
+                        if not os.path.exists(os.path.dirname(link_path)):
+                            utils.mkdir(os.path.dirname(link_path))
                         os.symlink(os.path.join("..", "system", grub_name), link_path)
                 else:
                     self.write_pxe_file(pxe_path, system, None, None, working_arch, image=profile, metadata=pxe_metadata)
@@ -612,6 +614,8 @@ class TFTPGen(object):
 
         if filename is not None:
             self.logger.info("generating: %s" % filename)
+            if not os.path.exists(os.path.dirname(filename)):
+                utils.mkdir(os.path.dirname(filename))
             fd = open(filename, "w")
             fd.write(buffer)
             fd.close()
