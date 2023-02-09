@@ -20,10 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 import netaddr
 import re
 import shlex
+from uuid import UUID
+
+import netaddr
 
 from cobbler.cexceptions import CX
 
-
+RE_SCRIPT_NAME = re.compile(r"[a-zA-Z0-9_.]+")
 RE_OBJECT_NAME = re.compile(r'[a-zA-Z0-9_\-.:]*$')
 RE_HOSTNAME = re.compile(r'^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$')
 
@@ -249,4 +252,42 @@ def name_servers_search(search, for_item=True):
 
     return search
 
-# EOF
+
+def validate_autoinstall_script_name(name: str) -> bool:
+    if not isinstance(name, str):
+        return False
+    if re.fullmatch(RE_SCRIPT_NAME, name):
+        return True
+    return False
+
+
+def validate_uuid(possible_uuid: str) -> bool:
+    if not isinstance(possible_uuid, str):
+        return False
+    # Taken from: https://stackoverflow.com/a/33245493/4730773
+    try:
+        uuid_obj = UUID(possible_uuid, version=4)
+    except ValueError:
+        return False
+    return str(uuid_obj) == possible_uuid
+
+
+def validate_obj_type(object_type: str) -> bool:
+    if not isinstance(object_type, str):
+        return False
+    return object_type in ["distro", "profile", "system", "repo", "image", "mgmtclass", "package", "file", "menu"]
+
+
+def validate_obj_name(future_object_name: str) -> bool:
+    if not isinstance(future_object_name, str):
+        return False
+    return bool(re.fullmatch(RE_OBJECT_NAME, future_object_name))
+
+
+def validate_obj_id(object_id: str) -> bool:
+    if not isinstance(object_id, str):
+        return False
+    if object_id.startswith("___NEW___"):
+        object_id = object_id[9:]
+    (otype, oname) = object_id.split("::", 1)
+    return validate_obj_type(otype) and validate_obj_name(oname)
