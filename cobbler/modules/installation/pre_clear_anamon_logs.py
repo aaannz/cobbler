@@ -30,8 +30,6 @@ from cobbler.cexceptions import CX
 
 PATH_PREFIX = "/var/log/cobbler/anamon/"
 
-logger = logging.getLogger()
-
 
 def register():
     """
@@ -73,5 +71,5 @@ def run(api, args, logger):
         if os.path.isdir(dirname):
             unlink_files(os.path.join(dirname, "*"))
 
-    logger.info('Cleared Anamon logs for "%s".', name)
+    logger.info('Cleared Anamon logs for "' + name + '".')
     return 0

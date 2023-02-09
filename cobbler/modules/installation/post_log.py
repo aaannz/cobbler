@@ -54,7 +54,7 @@ def run(api, args, logger):
     if not validate.validate_obj_type(objtype):
         return 1
 
-    if not api.find_items(objtype, name=name, return_list=False):
+    if not validate.validate_obj_name(name):
         return 1
 
     if not (ip == "?" or validate.ipv4_address(ip) or validate.ipv6_address(ip)):
