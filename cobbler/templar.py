@@ -141,7 +141,7 @@ class Templar(object):
         search_table["http_server"] = repstr
 
         # string replacements for @@xyz@@ in data_out with prior regex lookups of keys
-        regex = r"@@[a-zA-Z]*@@"
+        regex = r"@@[\S]*?@@"
         matches = re.finditer(regex, data_out, re.MULTILINE)
         for matchNum, match in enumerate(matches, start=1):
             data_out = data_out.replace(match.group(), search_table[str(match.group()).strip("@@")])
