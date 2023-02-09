@@ -505,7 +505,7 @@ class TFTPGen(object):
                     if arch == "ppc" or arch == "ppc64":
                         # to inherit the distro and system's boot_loader values correctly
                         blended_system = utils.blender(self.api, False, system)
-                        if blended_system["boot_loader"] == "pxelinux":
+                        if blended_system.get("boot_loader", "") == "pxelinux":
                             template = os.path.join(self.settings.boot_loader_conf_template_dir, "pxesystem_ppc.template")
                         else:
                             template = os.path.join(self.settings.boot_loader_conf_template_dir, "yaboot_ppc.template")
