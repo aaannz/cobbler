@@ -21,9 +21,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 
 from builtins import str
 import glob
+import logging
 import os
 
+from cobbler import utils
 from cobbler.cexceptions import CX
+
+
+PATH_PREFIX = "/var/log/cobbler/anamon/"
+
+logger = logging.getLogger()
 
 
 def register():
@@ -47,9 +54,6 @@ def run(api, args, logger):
     :param logger: This parameter is unused currently.
     :return: "0" on success.
     """
-
-    # FIXME: use the logger
-
     if len(args) < 3:
         raise CX("invalid invocation")
 
@@ -62,15 +66,12 @@ def run(api, args, logger):
     def unlink_files(globex):
         for f in glob.glob(globex):
             if os.path.isfile(f):
-                try:
-                    os.unlink(f)
-                except OSError:
-                    pass
+                utils.rmfile(f)
 
     if str(anamon_enabled) in ["true", "1", "y", "yes"]:
-        dirname = "/var/log/cobbler/anamon/%s" % name
+        dirname = os.path.join(PATH_PREFIX, name)
         if os.path.isdir(dirname):
             unlink_files(os.path.join(dirname, "*"))
 
-    # TODO - log somewhere that we cleared a systems anamon logs
+    logger.info('Cleared Anamon logs for "%s".', name)
     return 0
