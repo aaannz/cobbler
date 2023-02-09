@@ -79,8 +79,8 @@ class Templar(object):
         """
         lines = data.split("\n")
         for line in lines:
-            if line.find("#import") != -1:
-                rest = line.replace("#import", "").replace(" ", "").strip()
+            if line.find("#import") != -1 or line.find("#from") != -1:
+                rest = line.replace("#import", "").replace("#from", "").replace("import", ".").replace(" ", "").strip()
                 if self.settings and rest not in self.settings.cheetah_import_whitelist:
                     raise CX("potentially insecure import in template: %s" % rest)
 
