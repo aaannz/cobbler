@@ -298,6 +298,7 @@ mv %{buildroot}%{_sysconfdir}/cobbler/cobblerd_rotate %{buildroot}%{_sysconfdir}
 # No VirtualHost definition as it overwrite all the Uyuni RewriteRules configured in conf.d/
 mkdir -p %{buildroot}%{_sysconfdir}/apache2/conf.d
 mv %{buildroot}%{_sysconfdir}/apache2/vhosts.d/cobbler.conf %{buildroot}%{_sysconfdir}/apache2/conf.d
+mv %{buildroot}%{_sysconfdir}/apache2/vhosts.d/cobbler_web.conf %{buildroot}%{_sysconfdir}/apache2/conf.d
 sed -i 's/^.*VirtualHost.*$//g' %{buildroot}%{_sysconfdir}/apache2/conf.d/cobbler.conf
 
 # Create data directories in tftpboot_dir
