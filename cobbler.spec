@@ -44,7 +44,7 @@
 %define apache_user wwwrun
 %define apache_group www
 %define apache_log /var/log/apache2
-%define apache_webconfigdir /etc/apache2/vhosts.d
+%define apache_webconfigdir /etc/apache2/conf.d
 %define apache_mod_wsgi apache2-mod_wsgi-python%{python3_pkgversion}
 %define tftpboot_dir /srv/tftpboot
 %define tftpsrv_pkg tftp
@@ -119,7 +119,7 @@
 # To ensure correct byte compilation
 %global __python %{__python3}
 
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 %global devsuffix dev
 %else
 %global devsuffix devel
@@ -133,7 +133,7 @@ Release:        1%{?dist}
 Summary:        Boot server configurator
 URL:            https://cobbler.github.io/
 
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 Packager:       Cobbler Developers <cobbler@lists.fedorahosted.org>
 Group:          admin
 %endif
@@ -144,7 +144,7 @@ Group:          Development/System
 %endif
 
 License:        GPL-2.0-or-later
-Source0:        https://github.com/cobbler/cobbler/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
 
 BuildRequires:  git-core
@@ -153,7 +153,7 @@ BuildRequires:  python%{python3_pkgversion}-%{devsuffix}
 %if 0%{?suse_version}
 BuildRequires:  python-rpm-macros
 %endif
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 BuildRequires:  python3-deb-macros
 BuildRequires:  apache2-deb-macros
 
@@ -182,7 +182,7 @@ BuildRequires:  systemd
 %if 0%{?fedora} >= 30 || 0%{?rhel} >= 9 || 0%{?suse_version}
 BuildRequires:  systemd-rpm-macros
 %endif
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 BuildRequires:  systemd-deb-macros
 Requires:       systemd-sysv
 Requires(post): python3-minimal
@@ -196,6 +196,7 @@ Requires(postun): systemd
 Requires:       %{apache_pkg}
 Requires:       %{tftpsrv_pkg}
 Requires:       %{createrepo_pkg}
+Requires:       fence-agents
 Requires:       rsync
 Requires:       xorriso
 %{?python_enable_dependency_generator}
@@ -203,13 +204,14 @@ Requires:       xorriso
 Requires:       %{py3_module_cheetah}
 Requires:       %{py3_module_dns}
 Requires:       python%{python3_pkgversion}-future
-Requires:       python%{python3_pkgversion}-ldap3
 Requires:       %{apache_mod_wsgi}
 Requires:       python%{python3_pkgversion}-netaddr
 Requires:       %{py3_module_pyyaml}
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-simplejson
 Requires:       python%{python3_pkgversion}-tornado
+Requires:       python%{python3_pkgversion}-distro
+Recommends:     python%{python3_pkgversion}-ldap3
 %endif
 
 
@@ -227,7 +229,7 @@ Recommends:     %{grub2_ia32_efi_pkg}
 Recommends:     logrotate
 %endif
 # https://github.com/cobbler/cobbler/issues/1685
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 Requires:       init-system-helpers
 %else
 Requires:       /sbin/service
@@ -263,6 +265,14 @@ Requires(post): openssl
 Web interface for Cobbler that allows visiting
 http://server/cobbler_web to configure the install server.
 
+%if 0%{?suse_version}
+%package tests
+Summary:        Unit tests for cobbler
+Requires:       cobbler = %{version}-%{release}
+
+%description tests
+Unit test files from the Cobbler project
+%endif
 
 %prep
 %setup
@@ -285,6 +295,11 @@ rm %{buildroot}%{_sysconfdir}/cobbler/cobbler.conf
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mv %{buildroot}%{_sysconfdir}/cobbler/cobblerd_rotate %{buildroot}%{_sysconfdir}/logrotate.d/cobblerd
 
+# No VirtualHost definition as it overwrite all the Uyuni RewriteRules configured in conf.d/
+mkdir -p %{buildroot}%{_sysconfdir}/apache2/conf.d
+mv %{buildroot}%{_sysconfdir}/apache2/vhosts.d/cobbler.conf %{buildroot}%{_sysconfdir}/apache2/conf.d
+sed -i 's/^.*VirtualHost.*$//g' %{buildroot}%{_sysconfdir}/apache2/conf.d/cobbler.conf
+
 # Create data directories in tftpboot_dir
 mkdir -p %{buildroot}%{tftpboot_dir}/{boot,etc,grub,images{,2},ppc,pxelinux.cfg,s390x}
 
@@ -298,15 +313,19 @@ ln -sf service %{buildroot}%{_sbindir}/rccobblerd
 # cobbler-web
 rm %{buildroot}%{_sysconfdir}/cobbler/cobbler_web.conf
 
+%if 0%{?suse_version}
+# cobbler-tests
+cp -r tests/ %{buildroot}/%{_datadir}/cobbler/
+%endif
 
 %pre
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 if [ "$1" = "upgrade" ]; then
 %else
 if [ $1 -ge 2 ]; then
 %endif
     # package upgrade: backup configuration
-    DATE=$(date "+%Y%m%d-%H%M%S")
+    DATE=$(date "+%%Y%%m%%d-%%H%%M%%S")
     if [ ! -d "%{_sharedstatedir}/cobbler/backup/upgrade-${DATE}" ]; then
         mkdir -p "%{_sharedstatedir}/cobbler/backup/upgrade-${DATE}"
     fi
@@ -320,11 +339,24 @@ if [ $1 -ge 2 ]; then
     fi
 fi
 
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 %post
 %{py3_bytecompile_post %{name}}
 %{systemd_post cobblerd.service}
 %{apache2_module_post proxy_http}
+# Fixup permission for world readable settings files
+chmod 640 %{_sysconfdir}/cobbler/settings
+chmod 600 %{_sysconfdir}/cobbler/mongodb.conf
+chmod 600 %{_sysconfdir}/cobbler/modules.conf
+chmod 640 %{_sysconfdir}/cobbler/users.conf
+chmod 640 %{_sysconfdir}/cobbler/users.digest
+chmod 750 %{_sysconfdir}/cobbler/settings.d
+chmod 640 %{_sysconfdir}/cobbler/settings.d/*
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings
+chgrp %{apache_group} %{_sysconfdir}/cobbler/users.conf
+chgrp %{apache_group} %{_sysconfdir}/cobbler/users.digest
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.d
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.d/*
 
 %preun
 %{py3_bytecompile_preun %{name}}
@@ -341,6 +373,19 @@ fi
 %{_datadir}/%{name}/bin/mkgrub.sh >/dev/null 2>&1
 %endif
 %systemd_post cobblerd.service
+# Fixup permission for world readable settings files
+chmod 640 %{_sysconfdir}/cobbler/settings
+chmod 600 %{_sysconfdir}/cobbler/mongodb.conf
+chmod 600 %{_sysconfdir}/cobbler/modules.conf
+chmod 640 %{_sysconfdir}/cobbler/users.conf
+chmod 640 %{_sysconfdir}/cobbler/users.digest
+chmod 750 %{_sysconfdir}/cobbler/settings.d
+chmod 640 %{_sysconfdir}/cobbler/settings.d/*
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings
+chgrp %{apache_group} %{_sysconfdir}/cobbler/users.conf
+chgrp %{apache_group} %{_sysconfdir}/cobbler/users.digest
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.d
+chgrp %{apache_group} %{_sysconfdir}/cobbler/settings.d/*
 
 %preun
 %systemd_preun cobblerd.service
@@ -360,7 +405,7 @@ fi
 %endif
 
 %post web
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 # Work around broken attr support
 # Cf. https://github.com/debbuild/debbuild/issues/160
 chown %{apache_user}:%{apache_group} %{_datadir}/cobbler/web
@@ -418,22 +463,22 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %dir %{_sysconfdir}/cobbler/iso
 %config(noreplace) %{_sysconfdir}/cobbler/iso/buildiso.template
 %config(noreplace) %{_sysconfdir}/cobbler/logging_config.conf
-%config(noreplace) %{_sysconfdir}/cobbler/modules.conf
-%config(noreplace) %{_sysconfdir}/cobbler/mongodb.conf
+%attr(600, root, root) %config(noreplace) %{_sysconfdir}/cobbler/modules.conf
+%attr(600, root, root) %config(noreplace) %{_sysconfdir}/cobbler/mongodb.conf
 %config(noreplace) %{_sysconfdir}/cobbler/named.template
 %config(noreplace) %{_sysconfdir}/cobbler/ndjbdns.template
 %dir %{_sysconfdir}/cobbler/reporting
 %config(noreplace) %{_sysconfdir}/cobbler/reporting/build_report_email.template
 %config(noreplace) %{_sysconfdir}/cobbler/rsync.exclude
 %config(noreplace) %{_sysconfdir}/cobbler/rsync.template
-%config(noreplace) %{_sysconfdir}/cobbler/secondary.template
-%config(noreplace) %{_sysconfdir}/cobbler/settings
-%dir %{_sysconfdir}/cobbler/settings.d
-%config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
-%config(noreplace) %{_sysconfdir}/cobbler/settings.d/manage_genders.settings
-%config(noreplace) %{_sysconfdir}/cobbler/settings.d/nsupdate.settings
-%config(noreplace) %{_sysconfdir}/cobbler/users.conf
-%config(noreplace) %{_sysconfdir}/cobbler/users.digest
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/secondary.template
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings
+%attr(640, root, %{apache_group}) %dir %{_sysconfdir}/cobbler/settings.d
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/manage_genders.settings
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/nsupdate.settings
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/users.conf
+%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/users.digest
 %config(noreplace) %{_sysconfdir}/cobbler/version
 %config(noreplace) %{_sysconfdir}/cobbler/zone.template
 %dir %{_sysconfdir}/cobbler/zone_templates
@@ -467,7 +512,7 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %license COPYING
 %doc AUTHORS.in README.md
 %config(noreplace) %{apache_webconfigdir}/cobbler_web.conf
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 # Work around broken attr support
 # Cf. https://github.com/debbuild/debbuild/issues/160
 %{_datadir}/cobbler/web
@@ -479,6 +524,11 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %attr(-,%{apache_user},%{apache_group}) %{apache_dir}/cobbler_webui_content/
 %endif
 
+%if 0%{?suse_version}
+%files tests
+%dir /usr/share/cobbler/tests
+/usr/share/cobbler/tests/*
+%endif
 
 %changelog
 * Thu Dec 19 2019 Neal Gompa <ngompa13@gmail.com>
