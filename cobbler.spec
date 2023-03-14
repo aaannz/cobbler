@@ -472,7 +472,7 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %config(noreplace) %{_sysconfdir}/cobbler/reporting/build_report_email.template
 %config(noreplace) %{_sysconfdir}/cobbler/rsync.exclude
 %config(noreplace) %{_sysconfdir}/cobbler/rsync.template
-%attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/secondary.template
+%config(noreplace) %{_sysconfdir}/cobbler/secondary.template
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings
 %attr(640, root, %{apache_group}) %dir %{_sysconfdir}/cobbler/settings.d
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
