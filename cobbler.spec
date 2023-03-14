@@ -20,7 +20,7 @@
 # - Fedora: 30, 31, Rawhide
 # - CentOS + EPEL: 7, 8
 # - SLE: 15sp1
-# - OpenSuSE: Leap 15.1, Tumbleweed
+# - openSUSE: Leap 15.1, Tumbleweed
 # - Debian: 10
 # - Ubuntu: 18.04
 #
@@ -474,7 +474,7 @@ sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = \'$RAND_SECRET\'/" %{_datadir}/cobbler
 %config(noreplace) %{_sysconfdir}/cobbler/rsync.template
 %config(noreplace) %{_sysconfdir}/cobbler/secondary.template
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings
-%attr(640, root, %{apache_group}) %dir %{_sysconfdir}/cobbler/settings.d
+%attr(750, root, %{apache_group}) %dir %{_sysconfdir}/cobbler/settings.d
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/bind_manage_ipmi.settings
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/manage_genders.settings
 %attr(640, root, %{apache_group}) %config(noreplace) %{_sysconfdir}/cobbler/settings.d/nsupdate.settings
