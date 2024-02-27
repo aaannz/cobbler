@@ -1103,7 +1103,7 @@ class CobblerCLI:
             self.parser.add_option("--systems", dest="systems", help="(OPTIONAL) use these systems only")
             self.parser.add_option("--tempdir", dest="buildisodir", help="(OPTIONAL) working directory")
             self.parser.add_option("--distro", dest="distro",
-                                   help="Must be specified to choose the Kernel and Initrd for the ISO being built.")
+                                   help="(OPTIONAL) choose the Kernel and Initrd for the ISO being built.")
             self.parser.add_option("--standalone", dest="standalone", action="store_true",
                                    help="(OPTIONAL) creates a standalone ISO with all required distro files, "
                                         "but without any added repos")
@@ -1116,6 +1116,8 @@ class CobblerCLI:
             self.parser.add_option("--exclude-dns", dest="exclude_dns", action="store_true",
                                    help="(OPTIONAL) prevents addition of name server addresses to the kernel boot"
                                         "options")
+            self.parser.add_option("--exclude-systems", dest="exclude_systems", action="store_true",
+                                   help="(OPTIONAL) prevents writing system records")
             self.parser.add_option("--mkisofs-opts", dest="mkisofs_opts", help="(OPTIONAL) extra options for xorrisofs")
 
             (options, args) = self.parser.parse_args(self.args)
