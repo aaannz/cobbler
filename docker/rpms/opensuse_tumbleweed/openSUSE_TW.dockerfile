@@ -6,8 +6,7 @@ FROM registry.opensuse.org/opensuse/tumbleweed:latest
 ENV container docker
 ENV DISTRO SUSE
 
-# Runtime & dev dependencies
-RUN zypper install -y          \
+RUN zypper install --no-recommends -y \
     acl                        \
     apache2                    \
     apache2-devel              \
@@ -31,7 +30,6 @@ RUN zypper install -y          \
     python3                    \
     python3-Sphinx             \
     python3-Cheetah3           \
-    python3-Sphinx             \
     python3-dnspython          \
     python3-coverage           \
     python3-devel              \
