@@ -133,6 +133,7 @@ class CobblerAPI:
             self.logger.error(
                 "Failed to load signatures from %s: %s",
                 self.settings().signature_path,
+                e,
                 exc_info=e,
             )
             raise e
@@ -901,7 +902,7 @@ class CobblerAPI:
 
     # ==========================================================================
 
-    def add_item(self, what: str, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_item(self, what: str, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add an abstract item to a collection of its specific items. This is not meant for external use. Please reefer
         to one of the specific methods ``add_<type>``.
@@ -910,99 +911,114 @@ class CobblerAPI:
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
         self.log("add_item(%s)" % what, [ref.name])
-        self.get_items(what).add(ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.get_items(what).add(
+            ref,
+            check_for_duplicate_names=check_for_duplicate_names,
+            save=save,
+            with_sync=with_sync,
+        )
 
-    def add_distro(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_distro(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a distribution to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("distro", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("distro", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_profile(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_profile(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a profile to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("profile", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("profile", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_system(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_system(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a system to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("system", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("system", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_repo(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_repo(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a repository to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("repo", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("repo", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_image(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_image(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add an image to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("image", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("image", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_mgmtclass(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_mgmtclass(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a management class to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("mgmtclass", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("mgmtclass", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_package(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_package(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a package to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("package", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("package", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_file(self, ref, check_for_duplicate_names: bool = False, save: bool = True):
+    def add_file(self, ref, check_for_duplicate_names: bool = False, save: bool = True, with_sync: bool = True):
         """
         Add a file to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("file", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("file", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
-    def add_menu(self, ref, check_for_duplicate_names=False, save=True):
+    def add_menu(self, ref, check_for_duplicate_names=False, save=True, with_sync: bool = True):
         """
         Add a submenu to Cobbler.
 
         :param ref: The identifier for the object to add to a collection.
         :param check_for_duplicate_names: If the name should be unique or can be present multiple times.
         :param save: If the item should be persisted.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         """
-        self.add_item("menu", ref, check_for_duplicate_names=check_for_duplicate_names, save=save)
+        self.add_item("menu", ref, check_for_duplicate_names=check_for_duplicate_names, save=save, with_sync=with_sync)
 
     # ==========================================================================
     def add_remove_items(self, items: List[Tuple[str, "Item", bool, float, str]]):
@@ -1030,7 +1046,8 @@ class CobblerAPI:
                 check_for_duplicate_names=False,
                 save=True,
                 with_triggers=True,
-                rebuild_menu=False
+                rebuild_menu=False,
+                with_sync=False,
             )
 
         for what, ref, _, _, _ in to_remove:
@@ -1040,10 +1057,13 @@ class CobblerAPI:
                 recursive=False,
                 with_delete=True,
                 with_triggers=True,
-                rebuild_menu=False
+                rebuild_menu=False,
+                with_sync=False,
             )
 
         self.tftpgen.make_pxe_menu()
+        # Trigger a single consolidated sync after all items are added
+        self.get_sync().sync(verbose=False)
 
     def find_items(self, what: str = "", criteria: dict = None, name: str = "", return_list: bool = True,
                    no_errors: bool = False):

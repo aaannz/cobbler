@@ -2341,7 +2341,7 @@ class CobblerXMLRPCInterface:
             system_to_edit.rename_interface(attributes.get("interface", ""),
                                             attributes.get("rename_interface", ""))
 
-    def save_item(self, what, object_id, token, editmode: str = "bypass"):
+    def save_item(self, what, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2350,6 +2350,7 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
         self._log("save_item(%s)" % what, object_id=object_id, token=token)
@@ -2359,12 +2360,12 @@ class CobblerXMLRPCInterface:
             # the object will be saved in commit_transaction()
             return True
         if editmode == "new":
-            self.api.add_item(what, obj, check_for_duplicate_names=True)
+            self.api.add_item(what, obj, check_for_duplicate_names=True, with_sync=with_sync)
         else:
-            self.api.add_item(what, obj)
+            self.api.add_item(what, obj, with_sync=with_sync)
         return True
 
-    def save_distro(self, object_id, token, editmode: str = "bypass"):
+    def save_distro(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2372,11 +2373,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("distro", object_id, token, editmode=editmode)
+        return self.save_item("distro", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_profile(self, object_id, token, editmode: str = "bypass"):
+    def save_profile(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2384,11 +2386,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("profile", object_id, token, editmode=editmode)
+        return self.save_item("profile", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_system(self, object_id, token, editmode: str = "bypass"):
+    def save_system(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2396,11 +2399,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("system", object_id, token, editmode=editmode)
+        return self.save_item("system", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_image(self, object_id, token, editmode: str = "bypass"):
+    def save_image(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2408,11 +2412,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("image", object_id, token, editmode=editmode)
+        return self.save_item("image", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_repo(self, object_id, token, editmode: str = "bypass"):
+    def save_repo(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2420,11 +2425,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("repo", object_id, token, editmode=editmode)
+        return self.save_item("repo", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_mgmtclass(self, object_id, token, editmode: str = "bypass"):
+    def save_mgmtclass(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2432,11 +2438,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("mgmtclass", object_id, token, editmode=editmode)
+        return self.save_item("mgmtclass", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_package(self, object_id, token, editmode: str = "bypass"):
+    def save_package(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2444,11 +2451,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("package", object_id, token, editmode=editmode)
+        return self.save_item("package", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_file(self, object_id, token, editmode: str = "bypass"):
+    def save_file(self, object_id, token, editmode: str = "bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2456,11 +2464,12 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("file", object_id, token, editmode=editmode)
+        return self.save_item("file", object_id, token, editmode=editmode, with_sync=with_sync)
 
-    def save_menu(self, object_id, token, editmode="bypass"):
+    def save_menu(self, object_id, token, editmode="bypass", with_sync: bool = True):
         """
         Saves a newly created or modified object to disk. Calling save is required for any changes to persist.
 
@@ -2468,9 +2477,10 @@ class CobblerXMLRPCInterface:
         :param token: The API-token obtained via the login() method.
         :param editmode: The mode which shall be used to persist the changes. Currently "new" and "bypass" are
                          supported.
+        :param with_sync: If true, triggers synchronization of related configs/files.
         :return: True if the action succeeded.
         """
-        return self.save_item("menu", object_id, token, editmode=editmode)
+        return self.save_item("menu", object_id, token, editmode=editmode, with_sync=with_sync)
 
     def get_autoinstall_templates(self, token=None, **rest):
         """
